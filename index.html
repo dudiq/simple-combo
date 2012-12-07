@@ -1,0 +1,58 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="simple-combo.js"></script>
+    <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css"
+          rel="stylesheet"/>
+    <link type="text/css" href="simple-combo.css" rel="stylesheet"/>
+    <style>
+        html, body, table {
+            font-size: 12px;
+            font-family: Tahoma, Verdana, "Lucinda Console", "Arial", "Helvetica", "sans-serif";
+        }
+    </style>
+</head>
+<body>
+<div style="position:absolute; left:20%; top:200px; width: 800px;height: 20px;">
+    <div style="display: block; float: left; width: 500px;">
+        <div style="width:120px; height: 20px; border:1px solid gray; float:left; clear:left;">test</div>
+        <div id="combo" style="width:50%; height: 47px; border:1px solid gray;float:left; clear:left;"></div>
+    </div>
+    <input value="test">
+</div>
+<script>
+    $(document).ready(function() {
+        var combo = new jqSimpleCombo($("#combo"), [
+            ["label1", "value1"],
+            ["label8", "value1"],
+            ["label5", "value1"],
+            ["label6", "value1"],
+            ["label7", "value1"],
+            ["label2", "value2", true],
+            ["label3", "value3"]
+        ], {readonly: true});
+        combo.height(47);
+        $(combo).bind(jqSimpleCombo.onSelect, function(){
+            console.dir(["onSelect", arguments]);
+        });
+        $(combo).bind(jqSimpleCombo.onFocusIn, function(){
+            console.dir(["onFocus", arguments]);
+        });
+        $(combo).bind(jqSimpleCombo.onFocusOut, function(){
+            console.dir(["focusOut", arguments]);
+        });
+        $(combo).bind(jqSimpleCombo.onDropDown, function(){
+            console.dir(["dropDown", arguments]);
+        });
+        $(combo).bind(jqSimpleCombo.onKeyPress, function(){
+            console.dir(["keypress", arguments]);
+        });
+        $("input").focus();
+        setTimeout(function(){
+            combo.clearSelection();
+        },5000);
+    });
+</script>
+</body>
+</html>
