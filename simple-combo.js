@@ -1,5 +1,7 @@
 /**
 * jQuery Simple Combo
+* https://github.com/dudiq/simple-combo
+*
 * @version: 0.1 - 2011.06.10
 * @author: dudiq
 * @licence: MIT http://www.opensource.org/licenses/mit-license.php
