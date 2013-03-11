@@ -25,7 +25,7 @@ function jqSimpleCombo(div, data, opt) {
                 return;
             }
             var self = this;
-            this._div = $("<div class='simple-combo'><input class='simple-combo-input' type='text'><span class='simple-combo-btn'/><div class='simple-combo-container-list' ><div class='simple-combo-list'/></div></div>");
+            this._div = $("<div class='simple-combo'><input class='simple-combo-input' type='text'><span class='simple-combo-btn'/><div class='simple-combo-container-list'><div class='simple-combo-list' tabIndex='-1'/></div></div>");
             this._opt = (typeof opt == "object") ? opt : {};
             this._env = {};
             this._enableDiv = $("<div class='simple-combo-disable'/>");
@@ -43,6 +43,7 @@ function jqSimpleCombo(div, data, opt) {
                 listContainer = this._items = this._div.find(".simple-combo-container-list").attr("unselectable", "on"),
                 input = this._input = this._div.children(".simple-combo-input"),
                 self = this;
+
             function setListContainerPos(){
                 listContainer.width((self.listWidth() != undefined) ? self.listWidth() : self._div.width());
                 list.css("max-height",(self.listHeight() != undefined) ? self.listHeight() : "");
@@ -76,16 +77,51 @@ function jqSimpleCombo(div, data, opt) {
                     self._onFocusOut();
                 }
             });
-            var callPropIEHack = true;
-            list.mousedown(function(ev){
+
+            var focusClass = "simple-combo-sitem-focus";
+
+            var sysItems = list.add(input);
+            var checkFocusTimer;
+
+            function checkFocus(){
+                clearTimeout(checkFocusTimer);
+                checkFocusTimer = setTimeout(function(){
+                    if (!(input.hasClass(focusClass) && list.hasClass(focusClass))) {
+                        sysItems.removeClass(focusClass);
+                        self._onFocusOut();
+                    }
+                }, 100);
+            }
+
+            sysItems.focus(function(){
+                clearTimeout(checkFocusTimer);
+                sysItems.addClass(focusClass);
+            });
+
+            input.focus(function(ev){
+                console.log("input.focus");
+                if (!div.hasClass("simple-combo-focus")){
+                    div.addClass("simple-combo-focus");
+                    if (self.enable()){
+                        $(self).trigger(jqSimpleCombo.onFocusIn);
+                    }
+                }
+            });
+
+            input.blur(function(){
+                input.removeClass(focusClass);
+                checkFocus();
+            });
+
+            list.blur(function(){
+                list.removeClass(focusClass);
+                checkFocus();
+            });
+
+            list.click(function(ev){
                 var el = self._getEventElem(ev);
                 if (el != undefined && self.enable()){
-                    if (el.hasClass("simple-combo-list")){
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                        callPropIEHack = false;
-                        input.focus();
-                    } else {
+                    if (!el.hasClass("simple-combo-list")){
                         el = el.closest(".combo-item");
                         var index = el.data("index");
                         if (index != undefined){
@@ -94,15 +130,10 @@ function jqSimpleCombo(div, data, opt) {
                         }
                     }
                 }
-
-                window.setTimeout(function(){
-                    //hack for IE focusout event problem
-                    callPropIEHack = true;
-                }, 10);
-
             });
+
             var keySelectIndex = 0;
-            input.keypress(function(ev){
+            input.keydown(function(ev){
                 if (!self.enable()) return;
                 if (listContainer.is(":hidden")){
                     btn.click();
@@ -137,33 +168,6 @@ function jqSimpleCombo(div, data, opt) {
                 if (self.readonly()){
                     btn.click();
                 }
-            });
-            input.focus(function(ev){
-                if (!div.hasClass("simple-combo-focus")){
-                    div.addClass("simple-combo-focus");
-                    if (callPropIEHack && self.enable()){
-                        $(self).trigger(jqSimpleCombo.onFocusIn);
-                    }
-                }
-            });
-            var focusOutTrigger = true;
-            btn.mousedown(function(){
-                focusOutTrigger = false;
-            });
-            btn.mouseup(function(){
-                focusOutTrigger = true;
-            });
-            input.focusout(function(ev){
-                if (!self.enable()) return;
-                var el = $(this);
-                if (callPropIEHack){
-                    if (focusOutTrigger){
-                        self._onFocusOut();
-                    }
-                } else {
-                    el.focus();
-                }
-                callPropIEHack = true;
             });
         },
         _onFocusOut: function(){
